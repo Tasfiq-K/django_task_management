@@ -20,7 +20,8 @@
             <th>Start Date</th>
             <th>Time Left</th>
             <th>
-              Priority <button class="btn btn-link" onclick="sortByPriority()">&#x25B2;</button>
+              <!-- Priority <button class="btn btn-link" onclick="sortByPriority()">&#x25B2;</button> -->
+              Status <button class="btn btn-link" onclick="sortByStatus()">&#x25B2;</button>
             </th> <!-- Button for sorting by priority -->
             <th>Actions</th> <!-- Column for actions -->
           </tr>
@@ -33,7 +34,7 @@
               <td>
                 <div id="countdown_{{ task.id }}" class="countdown-timer"></div>
               </td>
-              <td>{{ task.priority }}</td>
+              <td>{{ task.status }}</td>
               <td>
                 <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#taskModal_{{ task.id }}">Details</button> <!-- Button to open modal -->
               </td>
@@ -68,8 +69,11 @@
               <p>
                 <strong>End Date:</strong> {{ task.end_date }}
               </p>
-              <p>
+              <!-- <p>
                 <strong>Priority:</strong> {{ task.priority }}
+              </p> -->
+              <p>
+                <strong>Status:</strong> {{ task.status }}
               </p>
               <p>
                 <strong>Description:</strong> {{ task.description }}
@@ -91,7 +95,29 @@
 
     <!-- JavaScript to update countdown timers and sorting -->
     <script>
-    function sortByPriority() {
+    // function sortByPriority() {
+    //   var table, rows, switching, i, x, y, shouldSwitch;
+    //   table = document.getElementById("taskTable");
+    //   switching = true;
+    //   while (switching) {
+    //     switching = false;
+    //     rows = table.getElementsByTagName("tr");
+    //     for (i = 1; i < (rows.length - 1); i++) {
+    //       shouldSwitch = false;
+    //       x = rows[i].getElementsByTagName("td")[3]; // Index of Priority column
+    //       y = rows[i + 1].getElementsByTagName("td")[3];
+    //       if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+    //         shouldSwitch = true;
+    //         break;
+    //       }
+    //     }
+    //     if (shouldSwitch) {
+    //       rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+    //       switching = true;
+    //     }
+    //   }
+    // }
+    function sortByStatus() {
       var table, rows, switching, i, x, y, shouldSwitch;
       table = document.getElementById("taskTable");
       switching = true;
@@ -100,9 +126,9 @@
         rows = table.getElementsByTagName("tr");
         for (i = 1; i < (rows.length - 1); i++) {
           shouldSwitch = false;
-          x = rows[i].getElementsByTagName("td")[3]; // Index of Priority column
-          y = rows[i + 1].getElementsByTagName("td")[3];
-          if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+          x = rows[i].getElementsByTagName("td")[4]; // Index of Status column
+          y = rows[i + 1].getElementsByTagName("td")[4];
+          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             shouldSwitch = true;
             break;
           }
@@ -142,34 +168,32 @@
     // }
 
 
+    // Function to update countdown timer for each task
     function updateCountdownTimers() {
       {% for task in tasks %}
-      // Get the start and end date of the task and convert them to JavaScript Date objects
+      // Get the start date of the task and convert it to a JavaScript Date object
       var startDate = new Date('{{ task.start_date|date:"Y/m/d H:i:s" }}');
-      var endDate = new Date('{{ task.end_date|date:"Y/m/d H:i:s" }}');
+      var now = new Date();
 
-      // Calculate the time difference between end date and start date
-      var timeDiff = endDate - startDate;
+      // Calculate the time difference between now and the start date
+      var timeDiff = startDate - now;
 
-      // If the time difference is positive, display the time left
+      // If the task has not started yet, display the countdown timer
       if (timeDiff > 0) {
         var days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
         var hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
-        // Display the time left in the format: DD:HH:MM:SS
+        // Display the countdown timer in the format: DD:HH:MM:SS
         document.getElementById('countdown_{{ task.id }}').innerText = days + "d " + hours + "h "
           + minutes + "m " + seconds + "s ";
       } else {
-        // If the end date is before the start date, display "No time left"
-        document.getElementById('countdown_{{ task.id }}').innerText = "No time left";
+        // If the task has already started, display a message indicating that it has started
+        document.getElementById('countdown_{{ task.id }}').innerText = "task has started";
       }
       {% endfor %}
     }
-
-    // Call the updateCountdownTimers function every second to update the countdown timers in real-time
-    setInterval(updateCountdownTimers, 1000);
   </script>
 
     <!-- Bootstrap JS (Optional - for certain Bootstrap features like modals) -->
