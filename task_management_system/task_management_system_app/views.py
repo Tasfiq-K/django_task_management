@@ -255,7 +255,7 @@ def category_list(request):
 @admin_required
 def category_tasks(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
-    tasks = category.tasks.all()
+    tasks = category.task.all()
     return render(request, 'task_management_system_app/category_tasks.html', {'category': category, 'tasks': tasks})
 
 @login_required

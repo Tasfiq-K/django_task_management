@@ -16,7 +16,7 @@ class Category(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=100)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='tasks')
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
