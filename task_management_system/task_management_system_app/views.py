@@ -8,10 +8,8 @@ from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django import forms
-from .models import Category, Task
+from .models import Category, Task, Comment
 from django.shortcuts import render, redirect
-from .models import Category
-from .models import Task
 from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -66,6 +64,16 @@ class TaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if not user.is_superuser:
             self.fields['assigned_to'].queryset = User.objects.filter(id=user.id)
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = [
+            'content'
+        ]
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'})
+        }
 
 # Views
 def register(request):
@@ -161,7 +169,8 @@ def create_task(request):
 @login_required
 # @admin_required
 def update_task(request, task_id):
-    task = Task.objects.get(pk=task_id)
+    # task = Task.objects.get(pk=task_id)
+    task = get_object_or_404(Task, pk=task.id)
     if not request.user.is_superuser and task.assigned_to != request.user:
         messages.error(request, "You can only edit your own tasks.")
         return redirect('user_tasks_list')
@@ -225,10 +234,11 @@ def create_category(request):
 @login_required
 @admin_required
 def delete_category(request, category_id):
-    category = Category.objects.get(pk=category_id)
-    if category.task_set.exists():
+    category = get_object_or_404(Category, pk=category_id)
+    # category = Category.objects.get(pk=category_id)
+    if category.task.exists():
         messages.error(
-            request, "You cannot delete this category as it contains tasks.")
+            request, "Cannto delete category with associated tasks.")
     else:
         category.delete()
         messages.success(request, "Category deleted successfully.")
@@ -236,27 +246,50 @@ def delete_category(request, category_id):
 
 
 @login_required
-@admin_required
-def category_tasks(request, category_id):
-    category = get_object_or_404(Category, pk=category_id)
-    tasks = category.task_set.all()
-    return render(request, 'task_management_system_app/category_tasks.html', {'category': category, 'tasks': tasks})
-
-@login_required
 # @admin_required
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'task_management_system_app/category_list.html', {'categories': categories})
 
+@login_required
+@admin_required
+def category_tasks(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    tasks = category.tasks.all()
+    return render(request, 'task_management_system_app/category_tasks.html', {'category': category, 'tasks': tasks})
+
+@login_required
+@admin_required
+def add_comment(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.task = task
+            comment.author = request.user
+            comment.save()
+            messages.success(request, "Comment added successfully.")
+            return redirect('category_tasks', category_id=task.category.id)
+    else:
+        form = CommentForm()
+    return render(request, 'task_management_system_app/add_comment.html', {'form': form, 'task': task})
+
+# @login_required
+# @admin_required
+# def task_chart(request):
+#     categories = Category.objects.all()
+#     pending_counts = {}
+#     for category in categories:
+#         pending_counts[category.name] = Task.objects.filter(
+#             category=category,
+#             start_date__gt=timezone.now()
+#         ).count()
+#     return render(request, 'task_management_system_app/task_chart.html', {'pending_counts': pending_counts})
 
 @login_required
 @admin_required
 def task_chart(request):
     categories = Category.objects.all()
-    pending_counts = {}
-    for category in categories:
-        pending_counts[category.name] = Task.objects.filter(
-            category=category,
-            start_date__gt=timezone.now()
-        ).count()
+    pending_counts = {category.name: category.tasks.filter(start_date__gt=timezone.now()).count() for category in categories}
     return render(request, 'task_management_system_app/task_chart.html', {'pending_counts': pending_counts})
