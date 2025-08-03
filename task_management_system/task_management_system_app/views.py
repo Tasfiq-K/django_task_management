@@ -67,29 +67,7 @@ class TaskForm(forms.ModelForm):
         if not user.is_superuser:
             self.fields['assigned_to'].queryset = User.objects.filter(id=user.id)
 
-def user_login(request):
-    if request.method == 'POST':
-        form = LoginForm(request, request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            if user.is_superuser:  # If the user is an admin
-                return redirect('category_list')
-            else:  # If the user is a normal user
-                return redirect('user_tasks_list')
-    else:
-        form = LoginForm()
-    return render(request, 'task_management_system_app/login.html', {'form': form})
-
-
-@login_required
-def user_tasks_list(request):
-    tasks = request.user.tasks.all()
-    return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
-
-
-
-
+# Views
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -102,8 +80,28 @@ def register(request):
     return render(request, 'task_management_system_app/register.html', {'form': form})
 
 
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request, request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            if user.is_superuser:  # If the user is an admin
+                return redirect('category_list')
+            return redirect('user_tasks_list')
+    else:
+        form = LoginForm()
+    return render(request, 'task_management_system_app/login.html', {'form': form})
+
+
+@login_required
+def user_tasks_list(request):
+    tasks = request.user.tasks.all()
+    return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
+
 def LogoutPage(request):
     logout(request)
+    messages.success(request, "Logged out successfully.")
     return redirect("login")
 
 
