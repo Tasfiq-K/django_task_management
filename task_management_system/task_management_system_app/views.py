@@ -82,7 +82,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             # login(request, user)
-            return redirect('login')
+            return redirect('task_management_system_app:login')
     else:
         form = RegistrationForm()
     return render(request, 'task_management_system_app/register.html', {'form': form})
@@ -95,16 +95,17 @@ def user_login(request):
             user = form.get_user()
             login(request, user)
             if user.is_superuser:  # If the user is an admin
-                return redirect('category_list')
-            return redirect('user_tasks_list')
+                return redirect('task_management_system_app:category_list')
+            return redirect('task_management_system_app:user_tasks_list')
     else:
         form = LoginForm()
     return render(request, 'task_management_system_app/login.html', {'form': form})
 
+@login_required
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully.")
-    return redirect("login")
+    return redirect("task_management_system_app:login")
 
 @login_required
 def user_tasks_list(request):
@@ -158,10 +159,10 @@ def create_task(request):
             task = form.save(commit=False)
             if not request.user_superuser and task.assigned_to != request.user:
                 messages.error(request, "You can only assign tasks to yourself.")
-                return redirect('create_task')
+                return redirect('task_management_system_app:create_task')
             task.save()
             messages.success(request, "Task created successfully.")
-            return redirect('user_task_list' if not request.user.is_superuser else 'category_list')
+            return redirect('task_management_system_app:user_task_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     else:
         form = TaskForm(user=request.user)
     return render(request, 'task_management_system_app/create_task.html', {'from': form})
@@ -206,11 +207,11 @@ def delete_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id)
     if not request.user.is_superuser and task.assigned_to != request.user:
         messages.error(request, "You can only delete your own task.")
-        return redirect('user_task_list')
+        return redirect('task_management_system_app:user_task_list')
     if request.method == 'POST':
         task.delete()
         messages.success(request, "Task deleted successfully.")
-        return redirect('user_task_list' if not request.user.is_superuser else 'category_list')
+        return redirect('task_management_system_app:user_task_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     return render(request, 'task_management_system_app/delete_task.html', {'task': task})
 
     #     task = Task.objects.get(id=task_id)
@@ -226,7 +227,7 @@ def create_category(request):
         if name:
             Category.objects.create(name=name)
             messages.success(request, "Category created successfully.")
-            return redirect('category_list')
+            return redirect('task_management_system_app:category_list')
         messages.error(request, "Category name is required.")
     return render(request, 'task_management_system_app/create_category.html')
 
@@ -242,7 +243,7 @@ def delete_category(request, category_id):
     else:
         category.delete()
         messages.success(request, "Category deleted successfully.")
-    return redirect('category_list')
+    return redirect('task_management_system_app:category_list')
 
 
 @login_required
@@ -270,7 +271,7 @@ def add_comment(request, task_id):
             comment.author = request.user
             comment.save()
             messages.success(request, "Comment added successfully.")
-            return redirect('category_tasks', category_id=task.category.id)
+            return redirect('task_management_system_app:category_tasks', category_id=task.category.id)
     else:
         form = CommentForm()
     return render(request, 'task_management_system_app/add_comment.html', {'form': form, 'task': task})
