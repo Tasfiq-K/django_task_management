@@ -14,12 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from task_management_system_app import views
-from django.contrib import admin
-from django.urls import path, include
-from django.contrib.auth.views import LogoutView
+# from django.contrib import admin
+# from django.urls import path
+# from task_management_system_app import views
+# from django.contrib import admin
+# from django.urls import path, include
+# from django.contrib.auth.views import LogoutView
 
 # urlpatterns = [
 #     path('admin/', admin.site.urls),
@@ -39,7 +39,6 @@ from django.contrib.auth.views import LogoutView
 # ]
 
 
-from django.contrib import admin
 from django.urls import path
 from task_management_system_app import views
 
@@ -48,7 +47,7 @@ app_name = 'task_management_system_app'
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
-    path('logout/', views.LogoutPage, name='logout'),  # Updated to match view name
+    path('logout/', views.user_logout, name='logout'),
     path('user/', views.user_tasks_list, name='user_tasks_list'),
     path('tasks/create/', views.create_task, name='create_task'),
     path('tasks/update/<int:task_id>/', views.update_task, name='update_task'),
