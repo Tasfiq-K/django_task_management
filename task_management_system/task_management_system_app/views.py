@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
+from django import forms
 from .models import Category, Task
 from django.shortcuts import render, redirect
 from .models import Category
@@ -24,8 +25,47 @@ def is_admin(user):
     return user.is_superuser
 
 
-admin_required = user_passes_test(lambda user: user.is_superuser)
+# admin_required = user_passes_test(lambda user: user.is_superuser)
+admin_required = user_passes_test(is_admin)
 
+
+# Forms
+class RegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+
+
+class LoginForm(AuthenticationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = [
+            'name',
+            'category',
+            'start_date',
+            'end_date',
+            'status',
+            'description',
+            'location',
+            'organizer',
+            'assigned_to'
+        ]
+
+        widgets = {
+            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if not user.is_superuser:
+            self.fields['assigned_to'].queryset = User.objects.filter(id=user.id)
 
 def user_login(request):
     if request.method == 'POST':
@@ -48,16 +88,6 @@ def user_tasks_list(request):
     return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
 
 
-class RegistrationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password1', 'password2']
-
-
-class LoginForm(AuthenticationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
 
 
 def register(request):
