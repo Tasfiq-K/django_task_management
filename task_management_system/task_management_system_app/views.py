@@ -93,94 +93,120 @@ def user_login(request):
         form = LoginForm()
     return render(request, 'task_management_system_app/login.html', {'form': form})
 
+def LogoutPage(request):
+    logout(request)
+    messages.success(request, "Logged out successfully.")
+    return redirect("login")
 
 @login_required
 def user_tasks_list(request):
     tasks = request.user.tasks.all()
     return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
 
-def LogoutPage(request):
-    logout(request)
-    messages.success(request, "Logged out successfully.")
-    return redirect("login")
+# @login_required
+# # @admin_required
+# def create_task(request):
+#     if request.method == 'POST':
+#         # Retrieve data from the POST request
+#         name = request.POST.get('name')
+#         category_id = request.POST.get('category')
+#         start_date = request.POST.get('start_date')
+#         end_date = request.POST.get('end_date')
+#         # priority = request.POST.get('priority')
+#         status = request.POST.get('status')
+#         description = request.POST.get('description')
+#         location = request.POST.get('location')
+#         organizer = request.POST.get('organizer')
+#         assigned_to_id = request.POST.get('assigned_to')
+#         category = Category.objects.get(pk=category_id)
+#         task = Task.objects.create(
+#             name=name,
+#             category=category,
+#             start_date=start_date,
+#             end_date=end_date,
+#             # priority=priority,
+#             status=status,
+#             description=description,
+#             location=location,
+#             organizer=organizer,
+#             assigned_to_id=int(assigned_to_id)
+#         )
 
+#         if request.user.is_superuser:
+#             # Redirect to the task list page
+#             return redirect('category_list')
+#         else:
+#             return redirect('user_tasks_list')
+#     else:
+#         categories = Category.objects.all()
+#         users = User.objects.all()
+#         return render(request, 'task_management_system_app/create_task.html', {'categories': categories, 'users': users})
 
 @login_required
-@admin_required
-def delete_task(request, task_id):
-    if request.method == 'POST':
-        task = Task.objects.get(id=task_id)
-        task.delete()
-    return redirect(reverse('category_list'))
-
-
-@login_required
-# @admin_required
 def create_task(request):
     if request.method == 'POST':
-        # Retrieve data from the POST request
-        name = request.POST.get('name')
-        category_id = request.POST.get('category')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        # priority = request.POST.get('priority')
-        status = request.POST.get('status')
-        description = request.POST.get('description')
-        location = request.POST.get('location')
-        organizer = request.POST.get('organizer')
-        assigned_to_id = request.POST.get('assigned_to')
-        category = Category.objects.get(pk=category_id)
-        task = Task.objects.create(
-            name=name,
-            category=category,
-            start_date=start_date,
-            end_date=end_date,
-            # priority=priority,
-            status=status,
-            description=description,
-            location=location,
-            organizer=organizer,
-            assigned_to_id=int(assigned_to_id)
-        )
-
-        if request.user.is_superuser:
-            # Redirect to the task list page
-            return redirect('category_list')
-        else:
-            return redirect('user_tasks_list')
+        form = TaskForm(request.POST, user=request.user)
+        if form.is_valid():
+            task = form.save(commit=False)
+            if not request.user_superuser and task.assigned_to != request.user:
+                messages.error(request, "You can only assign tasks to yourself.")
+                return redirect('create_task')
+            task.save()
+            messages.success(request, "Task created successfully.")
+            return redirect('user_task_list' if not request.user.is_superuser else 'category_list')
     else:
-        categories = Category.objects.all()
-        users = User.objects.all()
-        return render(request, 'task_management_system_app/create_task.html', {'categories': categories, 'users': users})
-
+        form = TaskForm(user=request.user)
+    return render(request, 'task_management_system_app/create_task.html', {'from': form})
 
 @login_required
 # @admin_required
 def update_task(request, task_id):
     task = Task.objects.get(pk=task_id)
+    if not request.user.is_superuser and task.assigned_to != request.user:
+        messages.error(request, "You can only edit your own tasks.")
+        return redirect('user_tasks_list')
     if request.method == 'POST':
+        form = TaskForm(request.POST, isinstance=task, user=request.user)
         # Update task fields based on form data
-        task.name = request.POST.get('name')
-        task.start_date = request.POST.get('start_date')
-        task.end_date = request.POST.get('end_date')
-        # task.priority = request.POST.get('priority')
-        task.status = request.POST.get('status')
-        task.description = request.POST.get('description')
-        task.location = request.POST.get('location')
-        task.organizer = request.POST.get('organizer')
-        task.assigned_to_id = request.POST.get('assigned_to')
-        task.save()
-        return redirect('category_list')
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Task updated successfully.')
+            return redirect('user_tasks_list' if not request.user.is_superuser else 'category_list')
     else:
-        # Render update task page with task data
-        return render(request, 'task_management_system_app/update_task.html', {'task': task})
+        form = TaskForm(isinstance=task, user=request.user)
+    return redirect(request, 'task_management_system_app/update_task.html', {'from': form, 'task': task})
 
+    #     task.name = request.POST.get('name')
+    #     task.start_date = request.POST.get('start_date')
+    #     task.end_date = request.POST.get('end_date')
+    #     # task.priority = request.POST.get('priority')
+    #     task.status = request.POST.get('status')
+    #     task.description = request.POST.get('description')
+    #     task.location = request.POST.get('location')
+    #     task.organizer = request.POST.get('organizer')
+    #     task.assigned_to_id = request.POST.get('assigned_to')
+    #     task.save()
+    #     return redirect('category_list')
+    # else:
+    #     # Render update task page with task data
+    #     return render(request, 'task_management_system_app/update_task.html', {'task': task})
 
 @login_required
-# @admin_required
-def category_list(request):
-    categories = Category.objects.all()
-    return render(request, 'task_management_system_app/category_list.html', {'categories': categories})
+@admin_required
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    if not request.user.is_superuser and task.assigned_to != request.user:
+        messages.error(request, "You can only delete your own task.")
+        return redirect('user_task_list')
+    if request.method == 'POST':
+        task.delete()
+        messages.success(request, "Task deleted successfully.")
+        return redirect('user_task_list' if not request.user.is_superuser else 'category_list')
+    return render(request, 'task_management_system_app/delete_task.html', {'task': task})
+
+    #     task = Task.objects.get(id=task_id)
+    #     task.delete()
+    # return redirect(reverse('category_list'))
 
 
 @login_required
@@ -188,8 +214,11 @@ def category_list(request):
 def create_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        Category.objects.create(name=name)
-        return redirect('category_list')
+        if name:
+            Category.objects.create(name=name)
+            messages.success(request, "Category created successfully.")
+            return redirect('category_list')
+        messages.error(request, "Category name is required.")
     return render(request, 'task_management_system_app/create_category.html')
 
 
@@ -212,6 +241,12 @@ def category_tasks(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
     tasks = category.task_set.all()
     return render(request, 'task_management_system_app/category_tasks.html', {'category': category, 'tasks': tasks})
+
+@login_required
+# @admin_required
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'task_management_system_app/category_list.html', {'categories': categories})
 
 
 @login_required
