@@ -170,19 +170,19 @@ def create_task(request):
 # @admin_required
 def update_task(request, task_id):
     # task = Task.objects.get(pk=task_id)
-    task = get_object_or_404(Task, pk=task.id)
+    task = get_object_or_404(Task, pk=task_id)
     if not request.user.is_superuser and task.assigned_to != request.user:
         messages.error(request, "You can only edit your own tasks.")
-        return redirect('user_tasks_list')
+        return redirect('task_management_system_app:user_tasks_list')
     if request.method == 'POST':
-        form = TaskForm(request.POST, isinstance=task, user=request.user)
+        form = TaskForm(request.POST, instance=task, user=request.user)
         # Update task fields based on form data
         if form.is_valid():
             form.save()
             messages.success(request, 'Task updated successfully.')
-            return redirect('user_tasks_list' if not request.user.is_superuser else 'category_list')
+            return redirect('task_management_system_app:user_tasks_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     else:
-        form = TaskForm(isinstance=task, user=request.user)
+        form = TaskForm(instance=task, user=request.user)
     return redirect(request, 'task_management_system_app/update_task.html', {'from': form, 'task': task})
 
     #     task.name = request.POST.get('name')
@@ -255,7 +255,7 @@ def category_list(request):
 @admin_required
 def category_tasks(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
-    tasks = category.task.all()
+    tasks = category.tasks.all()
     return render(request, 'task_management_system_app/category_tasks.html', {'category': category, 'tasks': tasks})
 
 @login_required
