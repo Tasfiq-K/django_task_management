@@ -101,7 +101,7 @@ def user_login(request):
         form = LoginForm()
     return render(request, 'task_management_system_app/login.html', {'form': form})
 
-def LogoutPage(request):
+def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully.")
     return redirect("login")
