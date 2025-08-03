@@ -16,9 +16,9 @@
       </div>
       <br>
 
-      <a href="{% url 'create_category' %}" class="btn btn-primary mb-3">Create Category</a> <!-- Button to create category -->
-      <a href="{% url 'task_chart' %}" class="btn btn-info mb-3">View task Chart</a> <!-- Button to view task chart -->
-      <a href="{% url 'logout' %}" class="btn btn-danger mb-3">Logout</a> <!-- Button to view task chart -->
+      <a href="{% url 'task_management_system_app:create_category' %}" class="btn btn-primary mb-3">Create Category</a> <!-- Button to create category -->
+      <a href="{% url 'task_management_system_app:task_chart' %}" class="btn btn-info mb-3">View task Chart</a> <!-- Button to view task chart -->
+      <a href="{% url 'task_management_system_app:logout' %}" class="btn btn-danger mb-3">Logout</a> <!-- Button to view task chart -->
       <table class="table">
         <thead>
           <tr>
@@ -30,10 +30,10 @@
           {% for category in categories %}
             <tr>
               <td>
-                <a href="{% url 'category_tasks' category.id %}">{{ category.name }}</a>
+                <a href="{% url 'task_management_system_app:category_tasks' category.id %}">{{ category.name }}</a>
               </td> <!-- Link to category_tasks page -->
               <td>
-                <form method="post" action="{% url 'delete_category' category.id %}" style="display: inline;">
+                <form method="post" action="{% url 'task_management_system_app:delete_category' category.id %}" style="display: inline;">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-danger btn-sm">Delete</button> <!-- Button to delete category -->
                 </form>
