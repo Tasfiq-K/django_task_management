@@ -11,8 +11,8 @@
       <h2 class="text-center">{{ category.name }} tasks</h2>
       <br />
       <div class="mb-3">
-        <a href="{% url 'create_task' %}" class="btn btn-primary">Add New task</a> <!-- Button to add new task -->
-        <a href="{% url 'category_list' %}" class="btn btn-secondary ml-2">Back to Categories</a> <!-- Button to go back to categories -->
+        <a href="{% url 'task_management_system_app:create_task' %}" class="btn btn-primary">Add New task</a> <!-- Button to add new task -->
+        <a href="{% url 'task_management_system_app:category_list' %}" class="btn btn-secondary ml-2">Back to Categories</a> <!-- Button to go back to categories -->
       </div>
       <table id="taskTable" class="table">
         <thead>
@@ -41,8 +41,8 @@
               <!-- <td>{{ task.priority }}</td> -->
               <td>{{ task.status }}</td>
               <td>
-                <a href="{% url 'update_task' task.id %}" class="btn btn-primary btn-sm">Update</a> <!-- Button to update task -->
-                <form method="post" action="{% url 'delete_task' task.id %}" style="display: inline;">
+                <a href="{% url 'task_management_system_app:update_task' task.id %}" class="btn btn-primary btn-sm">Update</a> <!-- Button to update task -->
+                <form method="post" action="{% url 'task_management_system_app:delete_task' task.id %}" style="display: inline;">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-danger btn-sm">Delete</button> <!-- Button to delete task -->
                 </form>

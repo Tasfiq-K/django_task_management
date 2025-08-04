@@ -11,7 +11,7 @@
     <div class="container mt-5">
       <h2 class="text-center">Add task</h2>
       <br />
-      <form method="post" action="{% url 'create_task' %}" onsubmit="return validateForm()">
+      <form method="post" action="{% url 'task_management_system_app:create_task' %}" onsubmit="return validateForm()">
         {% csrf_token %}
         <div class="form-group">
           <label for="taskName">task Name:</label>
