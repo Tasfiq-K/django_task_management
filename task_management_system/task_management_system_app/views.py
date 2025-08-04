@@ -180,21 +180,24 @@ def create_task(request):
 @login_required
 # @admin_required
 def update_task(request, task_id):
-    # task = Task.objects.get(pk=task_id)
     task = get_object_or_404(Task, pk=task_id)
     if not request.user.is_superuser and task.assigned_to != request.user:
         messages.error(request, "You can only edit your own tasks.")
         return redirect('task_management_system_app:user_tasks_list')
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task, user=request.user)
-        # Update task fields based on form data
         if form.is_valid():
             form.save()
-            messages.success(request, 'Task updated successfully.')
+            messages.success(request, "Task updated successfully.")
             return redirect('task_management_system_app:user_tasks_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     else:
         form = TaskForm(instance=task, user=request.user)
-    return render(request, 'task_management_system_app/update_task.html', {'form': form, 'task': task})
+    context = {
+        'form': form,
+        'task': task,
+        'is_admin': request.user.is_superuser,
+    }
+    return render(request, 'task_management_system_app/update_task.html', context)
 
     #     task.name = request.POST.get('name')
     #     task.start_date = request.POST.get('start_date')
