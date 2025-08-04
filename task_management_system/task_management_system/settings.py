@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "task_management_system_app",
     "crispy_forms",
+    "crispy_bootstrap4"
 
 ]
 
