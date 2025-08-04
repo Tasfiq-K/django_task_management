@@ -256,7 +256,7 @@ def delete_category(request, category_id):
 
 
 @login_required
-# @admin_required
+@admin_required
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'task_management_system_app/category_list.html', {'categories': categories})
