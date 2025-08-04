@@ -1,92 +1,167 @@
+<!-- <!DOCTYPE html> -->
+<!-- <html lang="en"> -->
+  <!-- <head> -->
+    <!-- <meta charset="UTF-8" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+    <!-- <title>Add task</title> -->
+    <!-- Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" /> -->
+  <!-- </head> -->
+  <!-- <body> -->
+    <!-- <div class="container mt-5"> -->
+      <!-- <h2 class="text-center">Add task</h2> -->
+      <!-- <br /> -->
+      <!-- <form method="post" action="{% url 'task_management_system_app:create_task' %}" onsubmit="return validateForm()"> -->
+        <!-- {% csrf_token %} -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="taskName">task Name:</label> -->
+          <!-- <input type="text" class="form-control" id="taskName" name="name" placeholder="Enter task name" required /> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="taskCategory">Category:</label> -->
+          <!-- <select class="form-control" id="taskCategory" name="category" required> -->
+            <!-- <option value="">Select category</option> -->
+            <!-- {% for category in categories %} -->
+              <!-- <option value="{{ category.id }}">{{ category.name }}</option> -->
+            <!-- {% endfor %} -->
+          <!-- </select> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="assigned_to">User :</label> -->
+          <!-- <select class="form-control" id="assigned_to" name="assigned_to" required> -->
+            <!-- <option value="">Select user</option> -->
+            <!-- {% for user in users %} -->
+              <!-- <option value="{{ user.id }}">{{ user.username }}</option> -->
+            <!-- {% endfor %} -->
+          <!-- </select> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="startDate">Start Date:</label> -->
+          <!-- <input type="datetime-local" class="form-control" id="startDate" name="start_date" required /> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="endDate">End Date:</label> -->
+          <!-- <input type="datetime-local" class="form-control" id="endDate" name="end_date" required /> -->
+        <!-- </div> -->
+        <!-- <div class="form-group">
+          <label for="priority">Priority:</label>
+          <input type="number" class="form-control" id="priority" name="priority" min="1" value="1" required />
+        </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="status">Status:</label> -->
+          <!-- <select class="form-control" id="status" name="status" required> -->
+            <!-- <option value="to_do">To Do</option> -->
+            <!-- <option value="in_progress">In Progress</option> -->
+            <!-- <option value="done">Done</option> -->
+          <!-- </select> -->
+        <!-- </div> -->
+
+        <!-- <div class="form-group"> -->
+          <!-- <label for="description">Description:</label> -->
+          <!-- <textarea class="form-control" id="description" name="description" rows="3"></textarea> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="location">Location:</label> -->
+          <!-- <input type="text" class="form-control" id="location" name="location" placeholder="Enter task location" /> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+          <!-- <label for="organizer">Organizer:</label> -->
+          <!-- <input type="text" class="form-control" id="organizer" name="organizer" placeholder="Enter task organizer" /> -->
+        <!-- </div> -->
+        <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
+      <!-- </form> -->
+    <!-- </div> -->
+
+    <!-- Bootstrap JS (Optional - for certain Bootstrap features like dropdowns, modals, etc.) -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+    <!-- <script> -->
+      <!-- function validateForm() { -->
+        <!-- var startDate = document.getElementById('startDate').value -->
+        <!-- var endDate = document.getElementById('endDate').value -->
+      
+        <!-- if (new Date(startDate) >= new Date(endDate)) { -->
+          <!-- alert('End date must be after the start date.') -->
+          <!-- return false -->
+        <!-- } -->
+        <!-- return true -->
+      <!-- } -->
+    <!-- </script> -->
+  <!-- </body> -->
+<!-- </html> -->
+ 
+
+<!-- task_management_system/task_management_system_app/templates/task_management_system_app/create_task.html -->
+{% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add task</title>
-    <!-- Bootstrap CSS -->
+    <title>Add Task</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
   </head>
   <body>
     <div class="container mt-5">
-      <h2 class="text-center">Add task</h2>
-      <br />
-      <form method="post" action="{% url 'task_management_system_app:create_task' %}" onsubmit="return validateForm()">
+      <h2 class="text-center mb-4">Add Task</h2>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% load crispy_forms_tags %}
+      <form method="post" id="createTaskForm" action="{% url 'task_management_system_app:create_task' %}">
         {% csrf_token %}
-        <div class="form-group">
-          <label for="taskName">task Name:</label>
-          <input type="text" class="form-control" id="taskName" name="name" placeholder="Enter task name" required />
-        </div>
-        <div class="form-group">
-          <label for="taskCategory">Category:</label>
-          <select class="form-control" id="taskCategory" name="category" required>
-            <option value="">Select category</option>
-            {% for category in categories %}
-              <option value="{{ category.id }}">{{ category.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="assigned_to">User :</label>
-          <select class="form-control" id="assigned_to" name="assigned_to" required>
-            <option value="">Select user</option>
-            {% for user in users %}
-              <option value="{{ user.id }}">{{ user.username }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="startDate">Start Date:</label>
-          <input type="datetime-local" class="form-control" id="startDate" name="start_date" required />
-        </div>
-        <div class="form-group">
-          <label for="endDate">End Date:</label>
-          <input type="datetime-local" class="form-control" id="endDate" name="end_date" required />
-        </div>
-        <!-- <div class="form-group">
-          <label for="priority">Priority:</label>
-          <input type="number" class="form-control" id="priority" name="priority" min="1" value="1" required />
-        </div> -->
-        <div class="form-group">
-          <label for="status">Status:</label>
-          <select class="form-control" id="status" name="status" required>
-            <option value="to_do">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description:</label>
-          <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="location">Location:</label>
-          <input type="text" class="form-control" id="location" name="location" placeholder="Enter task location" />
-        </div>
-        <div class="form-group">
-          <label for="organizer">Organizer:</label>
-          <input type="text" class="form-control" id="organizer" name="organizer" placeholder="Enter task organizer" />
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        {{ form.name|as_crispy_field }}
+        {{ form.category|as_crispy_field }}
+        {% if is_admin %}
+          {{ form.assigned_to|as_crispy_field }}
+        {% else %}
+          <div class="form-group">
+            <label for="assigned_to_display">Assigned To:</label>
+            <input type="text" class="form-control" id="assigned_to_display" value="{{ request.user.username }}" readonly />
+            {{ form.assigned_to.as_hidden }}
+          </div>
+        {% endif %}
+        {{ form.start_date|as_crispy_field }}
+        {{ form.end_date|as_crispy_field }}
+        <small id="end_date_error" class="form-text text-danger"></small>
+        {{ form.status|as_crispy_field }}
+        {{ form.description|as_crispy_field }}
+        {{ form.location|as_crispy_field }}
+        {{ form.organizer|as_crispy_field }}
+        <button type="submit" class="btn btn-primary btn-block">Submit</button>
       </form>
+      <a href="{% url 'task_management_system_app:user_tasks_list' %}" class="btn btn-secondary btn-block mt-3">Back to Tasks</a>
     </div>
 
-    <!-- Bootstrap JS (Optional - for certain Bootstrap features like dropdowns, modals, etc.) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
       function validateForm() {
-        var startDate = document.getElementById('startDate').value
-        var endDate = document.getElementById('endDate').value
-      
-        if (new Date(startDate) >= new Date(endDate)) {
-          alert('End date must be after the start date.')
-          return false
+        const startDate = new Date(document.getElementById('id_start_date').value);
+        const endDate = new Date(document.getElementById('id_end_date').value);
+        const errorElement = document.getElementById('end_date_error');
+        if (endDate <= startDate) {
+          errorElement.innerText = 'End date must be after start date.';
+          return false;
         }
-        return true
+        errorElement.innerText = '';
+        return true;
       }
+
+      document.getElementById('createTaskForm').addEventListener('submit', function (event) {
+        if (!validateForm()) {
+          event.preventDefault();
+        }
+      });
     </script>
   </body>
 </html>

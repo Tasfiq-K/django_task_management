@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -44,6 +44,81 @@
       document.getElementById('updateTaskForm').addEventListener('submit', function (event) {
         if (!validateEndDate()) {
           event.preventDefault(); // Prevent form submission if validation fails
+        }
+      });
+    </script>
+  </body>
+</html> -->
+
+
+<!-- task_management_system/task_management_system_app/templates/task_management_system_app/update_task.html -->
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Task</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="text-center mb-4">Update Task: {{ task.name }}</h2>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% load crispy_forms_tags %}
+      <form method="post" id="updateTaskForm" action="{% url 'task_management_system_app:update_task' task.id %}">
+        {% csrf_token %}
+        {{ form.name|as_crispy_field }}
+        {{ form.category|as_crispy_field }}
+        {% if is_admin %}
+          {{ form.assigned_to|as_crispy_field }}
+        {% else %}
+          <div class="form-group">
+            <label for="assigned_to_display">Assigned To:</label>
+            <input type="text" class="form-control" id="assigned_to_display" value="{{ request.user.username }}" readonly />
+            {{ form.assigned_to.as_hidden }}
+          </div>
+        {% endif %}
+        {{ form.start_date|as_crispy_field }}
+        {{ form.end_date|as_crispy_field }}
+        <small id="end_date_error" class="form-text text-danger"></small>
+        {{ form.status|as_crispy_field }}
+        {{ form.description|as_crispy_field }}
+        {{ form.location|as_crispy_field }}
+        {{ form.organizer|as_crispy_field }}
+        <button type="submit" class="btn btn-primary btn-block">Save Task</button>
+      </form>
+      <a href="{% url 'task_management_system_app:user_tasks_list' %}" class="btn btn-secondary btn-block mt-3">Back to Tasks</a>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      function validateEndDate() {
+        const startDate = new Date(document.getElementById('id_start_date').value);
+        const endDate = new Date(document.getElementById('id_end_date').value);
+        const errorElement = document.getElementById('end_date_error');
+        if (endDate <= startDate) {
+          errorElement.innerText = 'End date must be after start date.';
+          return false;
+        }
+        errorElement.innerText = '';
+        return true;
+      }
+
+      document.getElementById('updateTaskForm').addEventListener('submit', function (event) {
+        if (!validateEndDate()) {
+          event.preventDefault();
         }
       });
     </script>
