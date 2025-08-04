@@ -42,35 +42,28 @@ class LoginForm(AuthenticationForm):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = [
-            'name',
-            'category',
-            'start_date',
-            'end_date',
-            'status',
-            'description',
-            'location',
-            'organizer',
-            'assigned_to'
-        ]
-
+        fields = ['name', 'category', 'start_date', 'end_date', 'status', 'description', 'location', 'organizer', 'assigned_to']
         widgets = {
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'})
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if not user.is_superuser:
+        if user and not user.is_superuser:
             self.fields['assigned_to'].queryset = User.objects.filter(id=user.id)
+            self.fields['assigned_to'].initial = user.id  # Auto-set to current user
+            self.fields['assigned_to'].widget.attrs['readonly'] = True  # Optional: Make field read-only
+        else:
+            self.fields['assigned_to'].queryset = User.objects.all()
 
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
         if start_date and end_date and end_date <= start_date:
-            self.add_error('end_date', 'End date must be after start date')
+            self.add_error('end_date', 'End date must be after start date.')
         return cleaned_data
 
 
@@ -166,15 +159,23 @@ def create_task(request):
         form = TaskForm(request.POST, user=request.user)
         if form.is_valid():
             task = form.save(commit=False)
-            if not request.user_superuser and task.assigned_to != request.user:
+            if not request.user.is_superuser and task.assigned_to != request.user:
                 messages.error(request, "You can only assign tasks to yourself.")
                 return redirect('task_management_system_app:create_task')
             task.save()
             messages.success(request, "Task created successfully.")
-            return redirect('task_management_system_app:user_task_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
+            return redirect('task_management_system_app:user_tasks_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     else:
         form = TaskForm(user=request.user)
-    return render(request, 'task_management_system_app/create_task.html', {'from': form})
+    
+    # Context for template
+    context = {
+        'form': form,
+        'categories': Category.objects.all(),
+        'users': User.objects.all() if request.user.is_superuser else [request.user],
+        'is_admin': request.user.is_superuser,
+    }
+    return render(request, 'task_management_system_app/create_task.html', context)
 
 @login_required
 # @admin_required
@@ -193,7 +194,7 @@ def update_task(request, task_id):
             return redirect('task_management_system_app:user_tasks_list' if not request.user.is_superuser else 'task_management_system_app:category_list')
     else:
         form = TaskForm(instance=task, user=request.user)
-    return redirect(request, 'task_management_system_app/update_task.html', {'from': form, 'task': task})
+    return render(request, 'task_management_system_app/update_task.html', {'form': form, 'task': task})
 
     #     task.name = request.POST.get('name')
     #     task.start_date = request.POST.get('start_date')
