@@ -28,16 +28,16 @@ admin_required = user_passes_test(is_admin)
 
 
 # Forms
-class RegistrationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password1', 'password2']
+# class RegistrationForm(UserCreationForm):
+#     class Meta:
+#         model = User
+#         fields = ['username', 'password1', 'password2']
 
 
-class LoginForm(AuthenticationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
+# class LoginForm(AuthenticationForm):
+#     class Meta:
+#         model = User
+#         fields = ['username', 'password']
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -78,36 +78,37 @@ class CommentForm(forms.ModelForm):
         }
 
 # Views
-def register(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # login(request, user)
-            return redirect('login')
-    else:
-        form = RegistrationForm()
-    return render(request, 'task_management_system_app/register.html', {'form': form})
+# def register(request):
+#     if request.method == 'POST':
+#         form = RegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             # login(request, user)
+#             return redirect('login')
+#     else:
+#         form = RegistrationForm()
+#     return render(request, 'task_management_system_app/register.html', {'form': form})
 
 
-def user_login(request):
-    if request.method == 'POST':
-        form = LoginForm(request, request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            if user.is_superuser:  # If the user is an admin
-                return redirect('task_management_system_app:category_list')
-            return redirect('task_management_system_app:user_tasks_list')
-    else:
-        form = LoginForm()
-    return render(request, 'task_management_system_app/login.html', {'form': form})
+# def user_login(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request, request.POST)
+#         if form.is_valid():
+#             user = form.get_user()
+#             login(request, user)
+#             messages.success(request, "Logged in successfully")
+#             if user.is_superuser:  # If the user is an admin
+#                 return redirect('task_management_system_app:category_list')
+#             return redirect('task_management_system_app:user_tasks_list')
+#     else:
+#         form = LoginForm()
+#     return render(request, 'task_management_system_app/login.html', {'form': form})
 
-@login_required
-def user_logout(request):
-    logout(request)
-    messages.success(request, "Logged out successfully.")
-    return redirect("task_management_system_app:login")
+# @login_required
+# def user_logout(request):
+#     logout(request)
+#     messages.success(request, "Logged out successfully.")
+#     return redirect("task_management_system_app:login")
 
 @login_required
 def user_tasks_list(request):

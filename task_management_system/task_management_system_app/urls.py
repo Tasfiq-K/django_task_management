@@ -4,10 +4,10 @@ from . import views
 app_name = 'task_management_system_app'
 
 urlpatterns = [
-    path('', views.user_login, name='login'),
-    path('register/', views.register, name='register'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
+    # path('', views.user_login, name='login'),
+    # path('register/', views.register, name='register'),
+    # path('login/', views.user_login, name='login'),
+    # path('logout/', views.user_logout, name='logout'),
     path('user/', views.user_tasks_list, name='user_tasks_list'),
     path('tasks/create/', views.create_task, name='create_task'),
     path('tasks/update/<int:task_id>/', views.update_task, name='update_task'),
