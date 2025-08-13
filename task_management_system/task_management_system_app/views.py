@@ -110,10 +110,10 @@ class CommentForm(forms.ModelForm):
 #     messages.success(request, "Logged out successfully.")
 #     return redirect("task_management_system_app:login")
 
-@login_required
-def user_tasks_list(request):
-    tasks = request.user.tasks.all()
-    return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
+# @login_required
+# def user_tasks_list(request):
+#     tasks = request.user.tasks.all()
+#     return render(request, 'task_management_system_app/user_tasks_list.html', {'tasks': tasks})
 
 # @login_required
 # # @admin_required

@@ -26,7 +26,7 @@ def user_login(request):
             messages.success(request, "Logged in successfully.")
             if user.is_superuser:  # If the user is an admin
                 return redirect("task_management_system_app:category_list")
-            return redirect("task_management_system_app:user_tasks_list")
+            return redirect("user_dashboard:dashboard")
     else:
         form = LoginForm()
     return render(request, "accounts/login.html", {"form": form})
